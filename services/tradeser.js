@@ -5,26 +5,42 @@ let balance = 10000; // Starting balance
 let positions = 0; // Number of shares held
 const tradeHistory = [];
 let lastPrice = 0;
+API_KEY=process.env.API_KEY;
+INTERVAL='5min'
+
+
 
 const fetchPrice = async (symbol) => {
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${INTERVAL}&apikey=${API_KEY}`;
     try {
-        const response = await axios.get(`https://www.alphavantage.co/query`, {
-            params: {
-                function: 'TIME_SERIES_INTRADAY',
-                symbol: symbol,
-                interval: '1min',
-                apikey: process.env.ALPHA_VANTAGE_API_KEY
-            }
-        });
+        const response = await fetch(url);
+        const data = await response.json();
         
-        const timeSeries = response.data["Time Series (1min)"];
-        const latestTimestamp = Object.keys(timeSeries)[0];
-        const latestPrice = parseFloat(timeSeries[latestTimestamp]["1. open"]);
+        // Check if the time series data exists
+        const timeSeries = data["Time Series (5min)"];
+        if (!timeSeries) {
+            throw new Error("Time Series data is not available in the response.");
+        }
 
-        return latestPrice;
+        // Get the most recent time entry
+        const timeKeys = Object.keys(timeSeries);
+        const latestTime = timeKeys[0]; // Get the most recent timestamp
+        const stockData = timeSeries[latestTime];
+
+        const stockPriceInfo = {
+            time: latestTime,
+            open: parseFloat(stockData['1. open']),
+            high: parseFloat(stockData['2. high']),
+            low: parseFloat(stockData['3. low']),
+            close: parseFloat(stockData['4. close']),
+            volume: parseInt(stockData['5. volume']),
+        };
+
+        console.log('Latest Stock Price Info:', stockPriceInfo);
+        return stockPriceInfo;
+
     } catch (error) {
-        console.error('Error fetching stock price:', error);
-        return lastPrice; // Return the last price if there's an error
+        console.error("Error fetching stock price:", error.message);
     }
 };
 

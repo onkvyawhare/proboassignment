@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const tradingController = require('../controllers/trade');
+const trade = require('../controllers/trade');
 
-router.get('/start', tradingController.startTrading);
-router.get('/status', tradingController.getStatus);
+router.get('/start', trade.startTrading);
+router.get('/status', trade.getStatus);
 
 module.exports = router;
