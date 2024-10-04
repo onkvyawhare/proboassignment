@@ -1,4 +1,4 @@
-const tradingService = require('../services/tradingService');
+const tradingService = require('../services/tradeser');
 
 const startTrading = async (req, res) => {
     const symbol = req.query.symbol || 'TCS'; // Default to Tcs if no symbol provided
